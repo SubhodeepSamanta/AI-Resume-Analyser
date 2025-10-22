@@ -36,7 +36,7 @@ export default function CursorBlob() {
         }}
         transition={{
           type: "spring",
-          damping: 30,
+          damping: 20,
           stiffness: 200,
           mass: 0.5,
         }}
@@ -60,7 +60,7 @@ export default function CursorBlob() {
         }}
         transition={{
           type: "spring",
-          damping: 40,
+          damping: 30,
           stiffness: 150,
           mass: 0.8,
         }}

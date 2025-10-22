@@ -4,8 +4,14 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
 
 dotenv.config();
+
+// Python AI API URL
+const AI_API_URL = process.env.AI_API_URL || "http://localhost:5001";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +61,25 @@ app.get("/", (req, res) => {
   res.json({ message: "AI Resume Analyzer API" });
 });
 
+// Health check endpoint
+app.get("/api/health", async (req, res) => {
+  try {
+    const aiHealth = await axios.get(`${AI_API_URL}/health`);
+    res.json({
+      status: "healthy",
+      backend: "running",
+      ai: aiHealth.data,
+    });
+  } catch (error) {
+    res.json({
+      status: "degraded",
+      backend: "running",
+      ai: "not connected",
+      error: error.message,
+    });
+  }
+});
+
 // Analyze resume endpoint
 app.post("/api/analyze", upload.single("resume"), async (req, res) => {
   try {
@@ -69,47 +94,76 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
       console.log("Job description provided:", jobDescription.substring(0, 100) + "...");
     }
 
-    // TODO: Implement your AI analysis here
-    // You can use the jobDescription to provide more accurate matching
-    // For now, returning mock data
-    const analysisResult = {
-      score: 87,
-      matchPercentage: 92,
-      skillsFound: 15,
-      suggestions: 8,
-      details: {
-        strengths: [
-          "Strong technical skills alignment",
-          "Clear project descriptions",
-          "Quantified achievements",
-        ],
-        improvements: [
-          "Add more industry-specific keywords",
-          "Include certifications section",
-          "Expand on leadership experience",
-        ],
-        keywords: [
-          { word: "React", found: true },
-          { word: "Node.js", found: true },
-          { word: "TypeScript", found: true },
-          { word: "Docker", found: false },
-          { word: "Kubernetes", found: false },
-        ],
-      },
-    };
-
-    // If job description is provided, you can enhance the analysis
-    if (jobDescription) {
-      // TODO: Use jobDescription to compare with resume and provide better matching
-      analysisResult.jobDescriptionProvided = true;
+    // Check if file is PDF (our AI only supports PDF)
+    if (!req.file.originalname.toLowerCase().endsWith(".pdf")) {
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        message: "Only PDF files are supported by the AI model" 
+      });
     }
 
-    res.json(analysisResult);
+    try {
+      // Create form data to send to Python AI
+      const formData = new FormData();
+      formData.append("resume", fs.createReadStream(req.file.path));
+      if (jobDescription) {
+        formData.append("jobDescription", jobDescription);
+      }
+
+      console.log("Sending to AI API:", AI_API_URL);
+
+      // Call Python AI API
+      const aiResponse = await axios.post(`${AI_API_URL}/analyze`, formData, {
+        headers: formData.getHeaders(),
+        timeout: 30000, // 30 second timeout
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+
+      console.log("AI analysis completed successfully");
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      // Return AI analysis results
+      res.json(aiResponse.data);
+      
+    } catch (aiError) {
+      console.error("AI API Error:", aiError.message);
+
+      // Clean up uploaded file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+
+      // If AI is not available, return helpful error
+      if (aiError.code === "ECONNREFUSED") {
+        return res.status(503).json({
+          message: "AI service is not available",
+          error: "Please ensure the Python AI server is running on port 5001",
+          hint: 'Run "python api.py" in the ai-model directory',
+        });
+      }
+
+      // Other AI errors
+      return res.status(500).json({
+        message: "AI analysis failed",
+        error: aiError.response?.data?.message || aiError.message,
+      });
+    }
   } catch (error) {
     console.error("Error analyzing resume:", error);
-    res
-      .status(500)
-      .json({ message: "Error analyzing resume", error: error.message });
+    
+    // Clean up file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ 
+      message: "Error analyzing resume", 
+      error: error.message 
+    });
   }
 });
 
