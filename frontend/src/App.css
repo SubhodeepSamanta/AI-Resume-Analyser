@@ -1,0 +1,27 @@
+
+@import "tailwindcss";
+
+body {
+	font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+	background: #18181b;
+	color: #e5e7eb;
+}
+
+.file-input::-webkit-file-upload-button {
+	background: #27272a;
+	color: #a5b4fc;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+}
+
+.file-input {
+	background: #18181b;
+	color: #e5e7eb;
+	border: 1px solid #27272a;
+}
+
+.shadow-lg {
+	box-shadow: 0 4px 24px 0 rgba(0,0,0,0.5);
+}
