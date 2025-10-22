@@ -91,15 +91,18 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
 
     console.log("File received:", req.file.filename);
     if (jobDescription) {
-      console.log("Job description provided:", jobDescription.substring(0, 100) + "...");
+      console.log(
+        "Job description provided:",
+        jobDescription.substring(0, 100) + "..."
+      );
     }
 
     // Check if file is PDF (our AI only supports PDF)
     if (!req.file.originalname.toLowerCase().endsWith(".pdf")) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        message: "Only PDF files are supported by the AI model" 
+      return res.status(400).json({
+        message: "Only PDF files are supported by the AI model",
       });
     }
 
@@ -128,7 +131,6 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
 
       // Return AI analysis results
       res.json(aiResponse.data);
-      
     } catch (aiError) {
       console.error("AI API Error:", aiError.message);
 
@@ -154,15 +156,15 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
     }
   } catch (error) {
     console.error("Error analyzing resume:", error);
-    
+
     // Clean up file if it exists
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    
-    res.status(500).json({ 
-      message: "Error analyzing resume", 
-      error: error.message 
+
+    res.status(500).json({
+      message: "Error analyzing resume",
+      error: error.message,
     });
   }
 });

@@ -103,11 +103,14 @@ def get_skills_list():
     })
 
 if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5001))
+    
     print("\n" + "="*60)
     print("AI Resume Analyzer API Server")
     print("="*60)
-    print("Server running on: http://localhost:5001")
-    print("API Endpoint: POST http://localhost:5001/analyze")
+    print(f"Server running on port: {port}")
+    print(f"API Endpoint: POST /analyze")
     print("="*60 + "\n")
     
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)

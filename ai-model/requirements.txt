@@ -23,6 +23,7 @@ pickle-mixin>=1.0.2
 # Web framework (for API)
 flask>=3.0.0
 flask-cors>=4.0.0
+gunicorn>=21.2.0
 
 # Additional utilities
 python-dotenv>=1.0.0
