@@ -8,6 +8,7 @@ import AnalysisAccordion from "./components/AnalysisAccordion";
 
 function App() {
   const [file, setFile] = useState(null);
+  const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
@@ -19,8 +20,8 @@ function App() {
     setError(null);
 
     try {
-      // Send file to backend for analysis
-      const data = await analyzeResume(file);
+      // Send file and job description to backend for analysis
+      const data = await analyzeResume(file, jobDescription);
       setResults(data);
     } catch (err) {
       console.error("Error analyzing resume:", err);
@@ -40,6 +41,8 @@ function App() {
         <UploadSection
           file={file}
           setFile={setFile}
+          jobDescription={jobDescription}
+          setJobDescription={setJobDescription}
           onAnalyze={handleAnalyze}
           isAnalyzing={isAnalyzing}
         />

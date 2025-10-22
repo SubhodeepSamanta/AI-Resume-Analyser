@@ -62,9 +62,15 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    const { jobDescription } = req.body;
+
     console.log("File received:", req.file.filename);
+    if (jobDescription) {
+      console.log("Job description provided:", jobDescription.substring(0, 100) + "...");
+    }
 
     // TODO: Implement your AI analysis here
+    // You can use the jobDescription to provide more accurate matching
     // For now, returning mock data
     const analysisResult = {
       score: 87,
@@ -91,6 +97,12 @@ app.post("/api/analyze", upload.single("resume"), async (req, res) => {
         ],
       },
     };
+
+    // If job description is provided, you can enhance the analysis
+    if (jobDescription) {
+      // TODO: Use jobDescription to compare with resume and provide better matching
+      analysisResult.jobDescriptionProvided = true;
+    }
 
     res.json(analysisResult);
   } catch (error) {

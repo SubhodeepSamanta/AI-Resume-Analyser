@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 export default function UploadSection({
   file,
   setFile,
+  jobDescription,
+  setJobDescription,
   onAnalyze,
   isAnalyzing,
 }) {
@@ -114,6 +116,25 @@ export default function UploadSection({
             </>
           )}
         </div>
+
+        {/* Job Description Input */}
+        <div className="mt-6">
+          <label
+            htmlFor="jobDescription"
+            className="block text-zinc-300 text-sm font-medium mb-2"
+          >
+            Job Description (Optional)
+          </label>
+          <textarea
+            id="jobDescription"
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+            placeholder="Paste the job description here to get more accurate matching analysis..."
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors resize-none"
+            rows={4}
+          />
+        </div>
+        
 
         <motion.button
           whileHover={{ scale: 1.02 }}
