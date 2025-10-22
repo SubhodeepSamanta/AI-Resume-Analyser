@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import UploadSection from "./components/UploadSection";
 import StatsCards from "./components/StatsCards";
 import AnalysisAccordion from "./components/AnalysisAccordion";
+import CursorBlob from "./components/CursorBlob";
 
 function App() {
   const [file, setFile] = useState(null);
@@ -35,9 +36,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      <CursorBlob />
       <Navbar />
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 relative z-10">
         <UploadSection
           file={file}
           setFile={setFile}
